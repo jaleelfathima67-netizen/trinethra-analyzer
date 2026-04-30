@@ -94,7 +94,7 @@ Return ONLY the JSON. No markdown, no commentary.`;
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "phi3:latest",
+            model: "phi:latest",
             prompt: promptWithInstruction,
             stream: false,
             format: "json",
