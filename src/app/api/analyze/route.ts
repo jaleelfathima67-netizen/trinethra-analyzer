@@ -122,12 +122,23 @@ Return ONLY the JSON. No markdown, no commentary.`;
 
         const parsedResult = JSON.parse(resultJSON);
 
-        // Guardrail: Structural validation
-        if (typeof parsedResult.rubricScore !== "number" || !Array.isArray(parsedResult.evidence)) {
-          throw new Error("Missing required fields in JSON");
+        // Guardrail: Structural validation - forgiving
+        let score = parsedResult.rubricScore;
+        if (typeof score === "string") {
+          score = parseInt(score, 10);
         }
+        
+        const finalResult = {
+          evidence: Array.isArray(parsedResult.evidence) ? parsedResult.evidence : [],
+          rubricScore: isNaN(score) ? 0 : score,
+          label: parsedResult.label || "Analysis Completed",
+          justification: parsedResult.justification || "No justification provided by AI.",
+          kpiMapping: Array.isArray(parsedResult.kpiMapping) ? parsedResult.kpiMapping : [],
+          gapAnalysis: Array.isArray(parsedResult.gapAnalysis) ? parsedResult.gapAnalysis : [],
+          suggestedQuestions: Array.isArray(parsedResult.suggestedQuestions) ? parsedResult.suggestedQuestions : []
+        };
 
-        return NextResponse.json(parsedResult);
+        return NextResponse.json(finalResult);
       } catch (error: any) {
         console.error(`Attempt ${attempt + 1} failed:`, error.message);
         lastError = error;
